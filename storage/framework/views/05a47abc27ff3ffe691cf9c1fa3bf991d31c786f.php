@@ -4,6 +4,7 @@
 
 <!-- La barre de navigation -->
 <?php echo $__env->make('navbar/navbar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+<?php echo $__env->make('navbar/mobile', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <?php $__env->startSection('content'); ?>
     <div class="container mt-5" id="app">
@@ -34,7 +35,7 @@
             <h5 class="my-3">Suggestions pour vous</h5>
             <?php $__currentLoopData = $allUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $registeredUser): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                    <a href="<?php echo e(route('app_profil',['user' =>$registeredUser->email])); ?>" class="text-decoration-none">
+                    <a href="<?php echo e(route('app_profil',['user' =>$registeredUser->id])); ?>" class="text-decoration-none">
                         <div class="d-flex align-items-center">
                             
                             <img src="<?php echo e($registeredUser->profil ? $registeredUser->profil->getImage() : 'https://ui-avatars.com/api/?name=' . urlencode($registeredUser->name)); ?>" 
@@ -42,7 +43,7 @@
                             
                             <div>
                                 <span class="fw-bold d-block"><?php echo e($registeredUser->name); ?></span>
-                                <small class="text-muted">Inscrit le <?php echo e($registeredUser->created_at->diffForHumans()); ?></small>
+                                <small class="text-muted">Inscrit il y'a <?php echo e($registeredUser->created_at->diffForHumans()); ?></small>
                             </div>
                         </div>
                     </a>
@@ -62,7 +63,7 @@
         <div class="tab-pane fade show <?php echo e($tab === 'followers' ? 'show active' : ''); ?>" id="followers">
             <?php $__currentLoopData = $user->profil->followers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $follower): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="d-flex align-items-center justify-content-between mb-3 p-2 border-bottom">
-                <a href="<?php echo e(route('app_profil',['user' =>$follower->email])); ?>" class="text-decoration-none">
+                <a href="<?php echo e(route('app_profil',['user' =>$follower->id])); ?>" class="text-decoration-none">
                 <div class="d-flex align-items-center">
                     <img src="<?php echo e($follower->profil->getImage()); ?>" class="rounded-circle me-3" width="50" height="50">
                     <span class="fw-bold"><?php echo e($follower->name); ?></span>
@@ -77,7 +78,7 @@
         <div class="tab-pane fade <?php echo e($tab === 'following' ? 'show active' : ''); ?>" id="following">
             <?php $__currentLoopData = $user->following; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $followedProfil): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="d-flex align-items-center justify-content-between mb-3 p-2 border-bottom">
-                <a href="<?php echo e(route('app_profil',['user' =>$followedProfil->user->email])); ?>" class="text-decoration-none">
+                <a href="<?php echo e(route('app_profil',['user' =>$followedProfil->user->id])); ?>" class="text-decoration-none">
                     <div class="d-flex align-items-center">
                         <img src="<?php echo e($followedProfil->user->profil ? $followedProfil->getImage() : 'avatars/default1.jpg'); ?>" class="rounded-circle me-3" width="50" height="50">
                         <span class="fw-bold"><?php echo e($followedProfil->user->name); ?></span>

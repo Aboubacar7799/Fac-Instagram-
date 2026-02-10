@@ -8,7 +8,9 @@
         <div class="row">
             <div class="col-md-5 mx-auto">
                 <h1 class="text-center text-muted mb-3 mt-4">Créer votre compte</h1>
-                <p class="text-center text-muted mb-5">si vous n'avez pas de compte, inscrit-toi</p>
+                <div class="d-flex justify-content-center mb-3">
+                    <img src="{{ asset('assets/svg/birin.png') }}" width="75" height="75" class="text-center">
+                </div>
 
                 <form method="POST" action="{{ route('register')}}" class="row g-3" id="form-registre">
                     @csrf

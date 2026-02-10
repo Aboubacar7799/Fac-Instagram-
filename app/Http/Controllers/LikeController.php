@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Like;
 use App\Models\Post;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -22,6 +23,16 @@ class LikeController extends Controller
         );
 
         $post = Post::findOrFail($request->post_id);
+        //création de notification après le like d'un post
+        if ($post->user_id !== auth()->id()) {
+            Notification::create([
+                'user_id' => $post->user_id,
+                'from_user_id' => auth()->id(),
+                'type' => 'like',
+                'notifiable_id' => $post->id,
+                'notifiable_type' => Post::class,
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -38,5 +49,7 @@ class LikeController extends Controller
         ],
         'userReaction' => $like->type
         ]);
+
     }
+
 }

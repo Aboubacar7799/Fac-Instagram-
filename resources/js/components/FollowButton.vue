@@ -1,13 +1,14 @@
 <template>
     <div v-if="canFollow">
-        <button class="btn btn-primary sm" @click="followProfil" v-text="follow"></button>
+        <button class="btn btn-secondary sm" @click="followProfil" v-text="follow"></button>
     </div>
 </template>
 
 <script>
+
     export default{
 
-        props:['userId','follows','authId'],
+        props:['profilId','follows','authProfilId'],
 
         data: function(){
             return {
@@ -18,7 +19,7 @@
         methods:{
 
             followProfil(){
-                axios.post('/follows/' + this.userId)
+                axios.post('/follows/' + this.profilId)
 
                     .then(response => {
                         this.status = ! this.status
@@ -33,10 +34,10 @@
         },
         computed: {
             follow(){
-                return (this.status) ? 'Ne plus abonné' : 'Abonné';
+                return (this.status) ? "Désabonné" : "S'abonné";
             },
             canFollow(){
-                return parseInt(this.authId) !== parseInt(this.userId);
+                return parseInt(this.profilId) !== parseInt(this.authProfilId)
             }
         }
     }

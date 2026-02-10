@@ -6,7 +6,9 @@
         <div class="row">
             <div class="col-md-5 mx-auto">
                 <h1 class="text-center text-muted mb-3 mt-5">AUTHENTIFICATION</h1>
-                <p class="text-center text-muted mb-5">Plein de truc vous attends</p>
+                <div class="d-flex justify-content-center mb-3">
+                    <img src="<?php echo e(asset('assets/svg/birin.png')); ?>" width="100" height="100" class="text-center">
+                </div>
 
                 
                 <?php echo $__env->make('alerts.alert-message', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
@@ -40,10 +42,10 @@ endif;
 unset($__errorArgs, $__bag); ?>
 
                     <label class="form-label" for="email">Email</label>
-                    <input type="email" name="email" id="email" class="form-control mb-3" value="<?php echo e(old('email')); ?>" placeholder="email" autocomplete="email" autofocus>
+                    <input type="email" name="email" id="email" class="form-control mb-3" value="<?php echo e(old('email')); ?>" placeholder="email" autocomplete="email" autofocus required>
 
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" name="password" id="password" class="form-control mb-3" placeholder="Password">
+                    <input type="password" name="password" id="password" class="form-control mb-3" placeholder="Password" required>
 
                     <div class="row mb-3">
                         <div class="col-md-6">

@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Models\Profil;
+use App\Models\Notification;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -61,9 +64,9 @@ class User extends Authenticatable
     }
 
     
-    public function getRouteKeyName(){//cette fonction nous permet de recuperer le nom de l'user dans la page profil
-        return 'email';
-    }
+    // public function getRouteKeyName(){//cette fonction nous permet de recuperer le nom de l'user dans la page profil
+    //     return 'email';
+    // }
 
     public function profil(){//la relation entre la table profil et user
         return $this->hasOne(Profil::class);
@@ -88,6 +91,45 @@ class User extends Authenticatable
     public function followers()
     {
         return $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id');
+    }
+
+    //Pour marquer que l'utilisateur est en ligne
+
+    //Pour marquer que l'utilisateur est en ligne au niveau de la messagerie
+    public function lastSeen(){
+        return Cache::get('user-is-online-' . $this->id); 
+    }
+    
+    public function isOnline(){
+        return $this->lastSeen() !== null && Carbon::parse($this->lastSeen())->gt(now()->subMinutes(5));
+    }
+
+    public function lastSeenForHumans(){
+        return $this->lastSeen() ? Carbon::parse($this->lastSeen())->diffForHumans() : 'hors ligne';
+    }
+
+
+    // public function isOnlineMessage()
+    // {
+    //     return Cache::has('last_see_at' . $this->id);
+    // }
+
+    //Relations des notifications sur la plateform
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class)->latest();
+    }
+
+    //la relation contact c'est-à dire les personnes qui me suivent et ceux dont je suit
+    public function contacts(){
+
+        $profilIdsIFollow = $this->following()->pluck('profils.id');
+        
+        return User::whereHas('profil',function($q) use ($profilIdsIFollow){
+            $q->whereIn('id',$profilIdsIFollow);
+        })->whereHas('followers',function($q){
+            $q->where('follower_id', $this->id);
+        });
     }
 
 }

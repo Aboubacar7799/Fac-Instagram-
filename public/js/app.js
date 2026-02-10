@@ -17425,8 +17425,44 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+// export default{
+
+//     props:['userId','follows','authId'],
+
+//     data: function(){
+//         return {
+//             status: this.follows
+//         }
+//     },
+
+//     methods:{
+
+//         followProfil(){
+//             axios.post('/follows/' + this.userId)
+
+//                 .then(response => {
+//                     this.status = ! this.status
+//                 })
+//                 .catch(errors => {
+//                     if(errors.response.status===401){
+//                         window.location='/login';
+//                     }
+
+//             })
+//         }
+//     },
+//     computed: {
+//         follow(){
+//             return (this.status) ? "Désabonné" : "S'abonné";
+//         },
+//         canFollow(){
+//             return parseInt(this.authId) !== parseInt(this.userId);
+//         }
+//     }
+// }
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ['userId', 'follows', 'authId'],
+  props: ['profilId', 'follows', 'authProfilId'],
   data: function data() {
     return {
       status: this.follows
@@ -17435,7 +17471,7 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     followProfil: function followProfil() {
       var _this = this;
-      axios.post('/follows/' + this.userId).then(function (response) {
+      axios.post('/follows/' + this.profilId).then(function (response) {
         _this.status = !_this.status;
       })["catch"](function (errors) {
         if (errors.response.status === 401) {
@@ -17446,10 +17482,10 @@ __webpack_require__.r(__webpack_exports__);
   },
   computed: {
     follow: function follow() {
-      return this.status ? 'Ne plus abonné' : 'Abonné';
+      return this.status ? "Désabonné" : "S'abonné";
     },
     canFollow: function canFollow() {
-      return parseInt(this.authId) !== parseInt(this.userId);
+      return parseInt(this.profilId) !== parseInt(this.authProfilId);
     }
   }
 });
@@ -17475,7 +17511,7 @@ var _hoisted_1 = {
 var _hoisted_2 = ["textContent"];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return $options.canFollow ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    "class": "btn btn-primary sm",
+    "class": "btn btn-success sm",
     onClick: _cache[0] || (_cache[0] = function () {
       return $options.followProfil && $options.followProfil.apply($options, arguments);
     }),

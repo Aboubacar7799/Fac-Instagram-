@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Mail\EnvoiCode;
 use Illuminate\Http\Request;
 use App\MonService\EmailService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Mail\InitialisationPassword;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class LoginController extends Controller
 {
@@ -76,7 +81,7 @@ class LoginController extends Controller
         if($etat !== 1 || $email_verified_at === null){//si etat est egal à 0 on deconnecte l'user
             Auth::logout(); //si le code n'est pas encore verifier on deconnecte l'user après on lui redirige vers la page activation compte
             return redirect()->route('app_activation_code',['token'=>$activation_token])
-                             ->with('warning',"Votre compte n'est pas activer\non vous a envoyé un code de confirmation par l'email, verifier pour le confirmé");
+                             ->with('warning',"Votre compte n'est pas activer\non vous a envoyé un code de confirmation par l'email, verifier votre boîte email");
         }else{
             return redirect()->route('app_post_index');
         }
@@ -91,10 +96,19 @@ class LoginController extends Controller
         $activation_code=$user->activation_code;
         $activation_token=$user->activation_token;
 
-        $sendEmail = new EmailService;//instanciation de la classe EmailService;
+        // Envoyer une notification par e-mail à utilisateur
+        try {
+            Mail::to($email)->send(new EnvoiCode($activation_token, $activation_code, $name));
+        } catch (TransportException $e) {
+            // Annule la transaction en cas d'erreur de connexion
+            DB::rollBack();
 
-        $sujet = "Activé votre compte";
-        $sendEmail->envoiEmail($sujet,$email,$name,true,$activation_code,$activation_token);//envoi de l'email;
+            // Log the error for debugging
+            Log::error('Erreur de connexion lors de l\'envoi de l\'e-mail: ' . $e->getMessage());
+
+            // Retourner une réponse d'erreur personnalisée
+            return redirect()->back()->with('danger', 'Erreur de connexion. Veuillez vérifier votre connexion Internet et réessayer.');
+        }
 
         return redirect()->route('app_activation_code',['token' => $token])->with('success','On vous a renvoyé le code d\'activation par email');
     }
@@ -144,10 +158,19 @@ class LoginController extends Controller
                 $activation_code=$user->activation_code;
                 $activation_token=$user->activation_token;
 
-                $sendEmail = new EmailService;//instanciation de la classe EmailService;
+                // Envoyer une notification par e-mail à utilisateur
+                try {
+                    Mail::to($new_email)->send(new EnvoiCode($activation_token, $activation_code, $name));
+                } catch (TransportException $e) {
+                    // Annule la transaction en cas d'erreur de connexion
+                    DB::rollBack();
 
-                $sujet = "Activé votre compte";
-                $sendEmail->envoiEmail($sujet,$new_email,$name,true,$activation_code,$activation_token);//envoi de l'email;
+                    // Log the error for debugging
+                    Log::error('Erreur de connexion lors de l\'envoi de l\'e-mail: ' . $e->getMessage());
+
+                    // Retourner une réponse d'erreur personnalisée
+                    return redirect()->back()->with('danger', 'Erreur de connexion. Veuillez vérifier votre connexion Internet et réessayer.');
+                }
 
                 return redirect()->route('app_activation_code',['token' =>$token])
                         ->with('success','Votre email est changé avec succès, verifier votre boîte email pour activer votre compte');
@@ -172,10 +195,19 @@ class LoginController extends Controller
                 //on génere le token pour la réinitialisation du mot de passe de users
                 $activation_token = md5(uniqid()). $email .sha1($email);
 
-                $emailInitialPwd = new EmailService;
+                // Envoyer une notification par e-mail à Utilisateur
+                try {
+                    Mail::to($email)->send(new InitialisationPassword($activation_token, $name));
+                } catch (TransportException $e) {
+                    // Annule la transaction en cas d'erreur de connexion
+                    DB::rollBack();
 
-                $sujet = "Initialisation du Mot de Passe";
-                $emailInitialPwd->initialPassword($sujet,$email,$name,true,$activation_token);//envoi de l'email;
+                    // Log the error for debugging
+                    Log::error('Erreur de connexion lors de l\'envoi de l\'e-mail: ' . $e->getMessage());
+
+                    // Retourner une réponse d'erreur personnalisée
+                    return redirect()->back()->with('danger', 'Erreur de connexion. Veuillez vérifier votre connexion Internet et réessayer.');
+                }
 
                 //On registre le token dans la base de donnée qu'on a generer pour qu'on puisse l'utilisé dans le lien de la view initial_pwd
                 DB::table('users')->where('email', $email)

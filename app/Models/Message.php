@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Profil;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -20,5 +21,9 @@ class Message extends Model
     //la relation entre Message et User
     public function from(){
         return $this->belongsTo(User::class,'from_id');//Un message est écrit par un seul user
+    }
+
+    public function isRead(): bool {
+        return !is_null($this->read_at);
     }
 }

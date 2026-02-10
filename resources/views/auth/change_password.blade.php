@@ -19,7 +19,7 @@
                         <input
                             type="password" name="new-pwd" id="new-pwd"
                             class="form-control mb-3"
-                            value="@if(Session::has('new-pwd')){{ Session::get('new-pwd') }} @endif">
+                            value="@if(Session::has('new-pwd')){{ Session::get('new-pwd') }} @endif" required>
                         <small class="text-danger" id="error-change-password"></small>
                     </div>
 
@@ -28,7 +28,7 @@
                         <input
                             type="password" name="confirm-pwd" id="confirm-pwd"
                             class="form-control"
-                            value="@if(Session::has('new-pwd-confirm')){{ Session::get('new-pwd-confirm') }} @endif">
+                            value="@if(Session::has('new-pwd-confirm')){{ Session::get('new-pwd-confirm') }} @endif" required>
                         <small class="text-danger" id="error-change-password-confirm"></small>
                     </div>
                     <div class="d-grid gap-2 mt-3 mb-5">

@@ -4,6 +4,7 @@
 
 <!-- La barre de navigation -->
 @include('navbar/navbar')
+@include('navbar/mobile')
 
 @section('content')
     <div class="container mt-5">

@@ -3,11 +3,16 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
-use App\MonService\EmailService;
+use App\Mail\EnvoiCode;
 use Illuminate\Validation\Rule;
+use App\MonService\EmailService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -20,40 +25,37 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
-        // Validator::make($input, [
-        //     'name' => ['required', 'string', 'max:255'],
-        //     'email' => [
-        //         'required',
-        //         'string',
-        //         'email',
-        //         'max:255',
-        //         Rule::unique(User::class),
-        //     ],
-        //     'password' => $this->passwordRules(),
-        // ])->validate();
-
         //recuperation de l'email
-        $email=$input['email'];
+        $email = $input['email'];
 
         //on génere le token pour l'activation du compte des users
-        $activation_token=md5(uniqid()). $email .sha1($email);
+        $activation_token = md5(uniqid()) . $email . sha1($email);
 
-        $activation_code="";
+        $activation_code = "";
         $length_code = 6;
 
-        for($i = 0; $i<$length_code; $i++){
+        for ($i = 0; $i < $length_code; $i++) {
 
-            $activation_code .= mt_rand(0,9);//la fonction mt_rand, nous permet de générer un nombre aléatoire
+            $activation_code .= mt_rand(0, 9); //la fonction mt_rand, nous permet de générer un nombre aléatoire
         }
 
         //recuperation des données de users
-        $name=$input['prenom'].' '.$input['nom'];
-        $password=$input['password'];
+        $name = $input['prenom'] . ' ' . $input['nom'];
+        $password = $input['password'];
 
-        $sendEmail = new EmailService;//instanciation de la classe EmailService;
+        // Envoyer une notification par e-mail à utilisateur
+        try {
+            Mail::to($email)->send(new EnvoiCode($activation_token, $activation_code, $name));
+        } catch (TransportException $e) {
+            // Annule la transaction en cas d'erreur de connexion
+            DB::rollBack();
 
-        $sujet = "Activé votre compte";
-        $sendEmail->envoiEmail($sujet,$email,$name,true,$activation_code,$activation_token);//envoi de l'email;
+            // Log the error for debugging
+            Log::error('Erreur de connexion lors de l\'envoi de l\'e-mail: ' . $e->getMessage());
+
+            // Retourner une réponse d'erreur personnalisée
+            return redirect()->back()->with('danger', 'Erreur de connexion. Veuillez vérifier votre connexion Internet et réessayer.');
+        } //envoi de l'email;
 
         //creation des utilisateurs, ajout dans la base de donnée
         return User::create([

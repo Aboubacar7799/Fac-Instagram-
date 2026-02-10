@@ -4,6 +4,7 @@
 
 <!-- La barre de navigation -->
 @include('navbar/navbar')
+@include('navbar/mobile')
 
 @section('content')
 
@@ -26,7 +27,7 @@
                                     <div>
                                         <strong>{{ $post->user->name }}</strong><br>
                                         <small class="text-muted">
-                                            Il y’a {{ $post->created_at->diffForHumans() }}
+                                            {{ $post->created_at->diffForHumans() }}
                                         </small>
                                     </div>
                                 </a>

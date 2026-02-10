@@ -20,7 +20,7 @@
                             name="activation_code"
                             class="form-control @if(Session::has('danger')) is-invalid @endif"
                             id="activation_code"
-                            value="@if(Session::has('activation_code')) {{ Session::get('activation_code') }} @endif" placeholder="saisi le code ici..." autofocus>
+                            value="@if(Session::has('activation_code')) {{ Session::get('activation_code') }} @endif" placeholder="saisi le code ici..." autofocus required>
 
                     <div class="row mt-3">
                         <div class="col-md-6 text-start"><a href="{{ route('app_renvoi_code_activation',['token' => $token]) }}">Renvoyer le code</a></div>

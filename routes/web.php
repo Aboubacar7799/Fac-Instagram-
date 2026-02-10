@@ -2,17 +2,21 @@
 
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FollowControllers;
-use Symfony\Component\HttpFoundation\Request;
-use App\Http\Controllers\ConversationController; // Assure-toi d'avoir ce contrôleur pour la logique de suivi
+use Symfony\Component\HttpFoundation\Request; // Assure-toi d'avoir ce contrôleur pour la logique de suivi
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,12 +52,6 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/dashboard','dashboard')->middleware('auth')->name('app_dashboard');
 });
 
-/*Les Routes consernant le Profile de L'utilisateur*/
-Route::controller(ProfilController::class)->group(function(){
-    Route::get('/profil/{user}','profil')->middleware('auth')->name('app_profil');
-    Route::get('/profil/{user}/edit','edit')->middleware('auth')->name('app_profil_edit');
-    Route::patch('/profil/{user}','update')->middleware('auth')->name('app_profil_update');
-});
 
 /*Les Routes pour faire une Publication*/
 Route::controller(PostController::class)->group(function(){
@@ -76,7 +74,7 @@ Route::post('/reaction/ajax', [LikeController::class, 'ajax'])->middleware('auth
 /*Les Routes pour le Following, les methodes de Suivies*/
 Route::controller(FollowController::class)->group(function(){
     Route::post('/follows/{profil}','store')->name('app_follows_store');
-    Route::get('/following','listeFollowing')->name('app_Following_liste');
+    // Route::get('/following','listeFollowing')->name('app_Following_liste');
 });
 
 /*Les Routes de la Messagerie*/
@@ -97,22 +95,34 @@ Route::controller(ConversationController::class)->group(function(){
 
 // --- Routes pour les Commentaires ---
 // Route pour enregistrer un commentaire (utilisée par notre script AJAX)
-Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->middleware('auth')->name('comments.store');
+Route::get('/comments/{comments}/edit', [CommentController::class, 'edit'])->middleware('auth')->name('app_comment_edit');
+Route::patch('/comments/{comments}',[CommentController::class,'update'])->middleware('auth')->name('app_comment_update');
+
+
 
 
 // --- Routes pour les Relations (Followers/Following) ---
 // Page unique pour voir ses abonnés et ses suivis
-Route::get('/relations', function (Request $request) {
+Route::get('/profil/{user}/relations', function (User $user, Request $request) {
     // On récupère tous les utilisateurs sauf l'utilisateur connecté
     // On utilise with('profil') pour éviter les erreurs "null" rencontrées précédemment
-    $users = User::with('profil')->where('id', '!=', auth()->id())->get();
+    $allUsers = User::with('profil')->where('id', '!=', auth()->id())->get();
 
     return view('profil.relations', [
-        'user' => auth()->user(),
-        'allUsers' => $users,
+        'user' => $user, //profil consulté
+        'allUsers' => $allUsers,
         'tab' => $request->get('tab','discover'),
     ]);
 })->name('app_relations_index')->middleware('auth');
+
+
+/*Les Routes consernant le Profile de L'utilisateur*/
+Route::controller(ProfilController::class)->group(function () {
+    Route::get('/profil/{user}', 'profil')->middleware('auth')->name('app_profil');
+    Route::get('/profil/{user}/edit', 'edit')->middleware('auth')->name('app_profil_edit');
+    Route::patch('/profil/{user}', 'update')->middleware('auth')->name('app_profil_update');
+});
 
 // Route pour l'action de suivre/ne plus suivre (appelée par ton composant FollowButton)
 Route::post('/follow/{profilId}', [FollowControllers::class, 'toggle'])->name('app_follow_toggle');
@@ -121,3 +131,15 @@ Route::post('/follow/{profilId}', [FollowControllers::class, 'toggle'])->name('a
 Route::get('/posts/{post}/comments', function (Post $post) {
     return view('posts.comments', compact('post'));
 })->middleware('auth')->name('posts.comments');
+
+// les routes pour la notification 
+Route::middleware('auth')->group(function(){
+    Route::get('/notifications',[NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notifications}', [NotificationController::class, 'read'])->name('notifications.read');
+});
+
+//Les routes pour le contact et à propos
+ Route::get('/contact',[ContactController::class, 'index'])->name('app_contact_index');
+//  Route::post('/contact',[ContactController::class, 'store'])->name('app_contact_store');
+
+ Route::get('/about',[AboutController::class, 'index'])->name('app_about');

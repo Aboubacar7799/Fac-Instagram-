@@ -20,7 +20,7 @@
                     <input
                         type="email" name="envoi_email" id="envoi_email"
                         class="form-control  @error('email-success')) is-valid @enderror  @error('email-error')) is-invalid @enderror"
-                        value="@if(Session::has('old-email')) {{ Session::get('old-email') }} @endif" placeholder="saisi l'email ici..." autofocus>
+                        value="@if(Session::has('old-email')) {{ Session::get('old-email') }} @endif" placeholder="saisi l'email ici..." autofocus required>
 
                     <div class="d-grid gap-2 mt-3 mb-5">
                         <button type="submit" class="btn btn-primary">Initialisé le mot de passe</button>

@@ -4,6 +4,7 @@
 
 <!-- La barre de navigation -->
 @include('navbar/navbar')
+@include('navbar/mobile')
 
 @section('content')
     <div class="container mt-5" id="app">
@@ -34,7 +35,7 @@
             <h5 class="my-3">Suggestions pour vous</h5>
             @foreach($allUsers as $registeredUser)
                 <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                    <a href="{{ route('app_profil',['user' =>$registeredUser->email]) }}" class="text-decoration-none">
+                    <a href="{{ route('app_profil',['user' =>$registeredUser->id]) }}" class="text-decoration-none">
                         <div class="d-flex align-items-center">
                             {{-- Sécurité Image --}}
                             <img src="{{ $registeredUser->profil ? $registeredUser->profil->getImage() : 'https://ui-avatars.com/api/?name=' . urlencode($registeredUser->name) }}" 
@@ -42,7 +43,7 @@
                             
                             <div>
                                 <span class="fw-bold d-block">{{ $registeredUser->name }}</span>
-                                <small class="text-muted">Inscrit le {{ $registeredUser->created_at->diffForHumans() }}</small>
+                                <small class="text-muted">Inscrit il y'a {{ $registeredUser->created_at->diffForHumans() }}</small>
                             </div>
                         </div>
                     </a>
@@ -62,7 +63,7 @@
         <div class="tab-pane fade show {{ $tab === 'followers' ? 'show active' : '' }}" id="followers">
             @foreach($user->profil->followers as $follower)
             <div class="d-flex align-items-center justify-content-between mb-3 p-2 border-bottom">
-                <a href="{{ route('app_profil',['user' =>$follower->email]) }}" class="text-decoration-none">
+                <a href="{{ route('app_profil',['user' =>$follower->id]) }}" class="text-decoration-none">
                 <div class="d-flex align-items-center">
                     <img src="{{ $follower->profil->getImage() }}" class="rounded-circle me-3" width="50" height="50">
                     <span class="fw-bold">{{ $follower->name }}</span>
@@ -77,7 +78,7 @@
         <div class="tab-pane fade {{ $tab === 'following' ? 'show active' : '' }}" id="following">
             @foreach($user->following as $followedProfil)
             <div class="d-flex align-items-center justify-content-between mb-3 p-2 border-bottom">
-                <a href="{{ route('app_profil',['user' =>$followedProfil->user->email]) }}" class="text-decoration-none">
+                <a href="{{ route('app_profil',['user' =>$followedProfil->user->id]) }}" class="text-decoration-none">
                     <div class="d-flex align-items-center">
                         <img src="{{ $followedProfil->user->profil ? $followedProfil->getImage() : 'avatars/default1.jpg' }}" class="rounded-circle me-3" width="50" height="50">
                         <span class="fw-bold">{{ $followedProfil->user->name }}</span>

@@ -2,6 +2,7 @@
 
 <!-- La barre de navigation -->
 <?php echo $__env->make('navbar/navbar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+<?php echo $__env->make('navbar/mobile', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <?php $__env->startSection('content'); ?>
 
@@ -24,7 +25,7 @@
                                     <div>
                                         <strong><?php echo e($post->user->name); ?></strong><br>
                                         <small class="text-muted">
-                                            Il y’a <?php echo e($post->created_at->diffForHumans()); ?>
+                                            <?php echo e($post->created_at->diffForHumans()); ?>
 
                                         </small>
                                     </div>

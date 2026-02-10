@@ -4,36 +4,63 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Profil;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class FollowController extends Controller
 {
-    //
-
+    
     public function __construct(){
         $this->middleware("auth");
     }
 
-    public function store(User $user){
-
-        if (auth()->id() === $user->id) {
-            return response()->json(['message' => 'Interdit'], 403);
+    public function store($profil)
+    {
+        // 1 Interdire de suivre son propre profil
+        if (auth()->user()->profil->id == $profil) {
+            return response()->json(['message' => 'interdit'], 403);
         }
-        auth()->user()->following()->toggle($user->id);
+
+        // 2 Récupérer le profil ciblé
+        $profilModel = Profil::findOrFail($profil);
+
+        // 3 Vérifier AVANT le toggle
+        $alreadyFollowing = auth()->user()->following()->where('profil_id',$profilModel->id)->exists();
+
+        // 4 Toggle (TON CODE — inchangé)
+        auth()->user()->following()->toggle($profil);
+
+        // 5 Créer notification UNIQUEMENT si c’est un nouveau follow
+        if (!$alreadyFollowing) {
+            $userToNotify = $profilModel->user;
+
+            // sécurité supplémentaire
+            if ($userToNotify->id !== auth()->id()) {
+                Notification::create([
+                    'user_id' => $userToNotify->id,
+                    'from_user_id' => auth()->id(),
+                    'type' => 'follow',
+                    'notifiable_id' => $profilModel->id,
+                    'notifiable_type' => Profil::class,
+                    'is_read' => false,
+                ]);
+            }
+        }
 
         return response()->json(['status' => 'ok']);
     }
 
-    //fonction pour afficher la liste des users que je suit
-    public function listeFollowing(){
+    // public function store($profil){
+    //     //Interdire de suivre son propre profil
+    //     if(auth()->user()->profil->id == $profil){
+    //         return response()->json(['message' => 'interdit'],403);
+    //     }
 
-        $users = auth()->user()->following->pluck('user_id');//recuperer les user_id du profil auquel utilisateur est abonné
-
-        $profils = Profil::whereIn('user_id', $users)->with('user')->latest()->paginate(20);//recuperation des posts des publications des differents users par ordre decroissant avec la fonction latest()
-
-        return view('profil.listeFollowing',compact('profils'));
-    }
+    //     auth()->user()->following()->toggle($profil);
+        
+    //     return response()->json(['status' => 'ok']);
+    // }
 
     
 }

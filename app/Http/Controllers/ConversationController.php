@@ -23,11 +23,15 @@ class ConversationController extends Controller
     }
 
     public function index(){
-        //on lui demande de recuperer tous les users dont id est different de user connécté
+        //on lui demande de recuperer tous les users dont id est different de user connecté
         $me = $this->auth->user();
+        
+        $onlineUsers = User::where('id','!=', auth()->id())->get()->filter(fn ($user) => $user->isOnline()); // Lister les personnes en ligne dans message
+
         return view('conversations.index', [
             'users' => $this->conversationRepository->getUserMessage($me->id),
-            'unread' => $this->conversationRepository->unreadCount($me->id)
+            'unread' => $this->conversationRepository->unreadCount($me->id),
+            'onlineUsers' => $onlineUsers,
         ]);
     }
 
@@ -35,7 +39,7 @@ class ConversationController extends Controller
 
         $me = $this->auth->user(); //l'utilisateur connecter
 
-        //on lui demande de recuperer tous les users dont id est different de user connécté
+        //on lui demande de recuperer tous les users dont id est different de user connecté
         $messages = $this->conversationRepository->getMessageFor($me->id, $user->id)->paginate(15);//recuperation de la conversation de deux users
         $unread = $this->conversationRepository->unreadCount($me->id);//recuperation des conversations non lus
 
@@ -53,6 +57,7 @@ class ConversationController extends Controller
         ]);
     }
 
+    //creation d'une conversation
     public function store(User $user, StoreMessageRequest $request){
         $me = $this->auth->user();
         $this->conversationRepository->createMessage(
@@ -61,6 +66,6 @@ class ConversationController extends Controller
             $user->id
         );
 
-        return redirect()->route('conversations.show', ['user' => $user->id]);
+        return redirect()->route('app_conversations_show', ['user' => $user->id]);
     }
 }

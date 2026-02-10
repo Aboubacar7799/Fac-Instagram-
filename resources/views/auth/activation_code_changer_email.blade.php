@@ -18,7 +18,7 @@
                     <input
                             type="email" name="changer_email" id="changer_email"
                             class="form-control @if(Session::has('danger')) is-invalid @endif"
-                            value="@if(Session::has('changer_email')) {{ Session::get('changer_email') }} @endif" placeholder="saisi l'email ici..." autofocus>
+                            value="@if(Session::has('changer_email')) {{ Session::get('changer_email') }} @endif" placeholder="saisi l'email ici..." autofocus required>
 
                     <div class="d-grid gap-2 mt-3">
                         <button type="submit" class="btn btn-primary">Valider l'email</button>
